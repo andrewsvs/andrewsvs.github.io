@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Construction Stage Scans</title>
+    <link href="./libs/tailwind.css" rel="stylesheet">
+    <link href="./libs/inter.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Interactive 3D Construction Visualization</h1>
+            <p class="mt-2 text-lg text-gray-600">Click a stage on the timeline to load the corresponding 3D scan.</p>
+        </header>
+
+        <div id="fullscreen-wrapper" class="relative bg-gray-100">
+            <div id="viewer-container">
+                <!-- Annotations Menu (Inside Canvas) -->
+                <div id="annotations-menu" class="absolute top-4 right-0 w-80 bg-white shadow-xl z-40 transition-transform duration-300 ease-in-out rounded-l-lg">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">Annotations</h3>
+                        <button id="close-annotations-menu" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="annotations-list" class="p-4 space-y-2 overflow-y-auto max-h-96">
+                        <!-- Annotations will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Construction Stages Menu (Inside Canvas) -->
+                <div id="mobile-menu" class="absolute top-4 right-0 w-64 bg-white shadow-xl z-40 transition-transform duration-300 ease-in-out rounded-l-lg">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h3 class="text-lg font-semibold text-gray-800">Construction Stages</h3>
+                        <button id="close-stages-menu" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="mobile-timeline-container" class="p-4 overflow-y-auto" style="max-height: calc(100vh - 8rem);">
+                        <!-- Construction stages will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Custom Loading Indicator -->
+            <div id="custom-loader" class="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+            <!-- Fullscreen Button -->
+            <button id="fullscreen-button" class="absolute top-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg">
+                <svg id="enter-fullscreen-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>
+                <svg id="exit-fullscreen-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9L3.75 3.75M3.75 3.75v4.5m0-4.5h4.5m11.25 11.25l5.25 5.25m0 0v-4.5m0 4.5h-4.5M9 15l-5.25 5.25m0 0v4.5m0-4.5h4.5m11.25-11.25l5.25-5.25m0 0v4.5m0-4.5h-4.5" /></svg>
+            </button>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="md:hidden absolute top-4 right-4 z-30 bg-white p-2 rounded-full shadow-lg">
+                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+
+            <!-- Annotations Menu Button -->
+            <button id="annotations-menu-button" class="absolute top-4 right-16 z-30 bg-white p-2 rounded-full shadow-lg">
+                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+            </button>
+
+
+
+
+
+
+
+            <!-- Help Button -->
+            <button id="help-button" class="absolute bottom-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-800"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
+            </button>
+
+            <!-- Theme Switcher -->
+            <button id="theme-button" class="absolute bottom-4 left-20 z-30 bg-white p-2 rounded-full shadow-lg">
+                <!-- Moon Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0012 17a7 7 0 009-4.21z" />
+                </svg>
+            </button>
+            <div id="theme-menu" class="absolute bottom-20 left-20 z-40 bg-white rounded-lg shadow-lg hidden">
+                <button data-mode="auto" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Auto</button>
+                <button data-mode="light" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Off</button>
+                <button data-mode="dark" class="theme-option block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">On</button>
+            </div>
+            
+
+            <!-- Dev Toggle Button -->
+            <button id="dev-button" title="Developer Toggle" class="absolute bottom-4 right-4 z-30 bg-white p-2 rounded-full shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+            </button>
+
+            <!-- Camera Coordinates Overlay -->
+            <div id="camera-coordinates" class="absolute top-4 right-4 z-30 bg-black bg-opacity-75 text-white p-3 rounded-lg font-mono text-xs max-w-xs">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="font-semibold">Camera Coordinates</div>
+                    <button id="toggle-coordinates" class="text-white hover:text-gray-300 text-xs">
+                        Hide
+                    </button>
+                </div>
+                <div class="space-y-1">
+                    <div>Position: <span id="camera-position">[0, 0, 0]</span></div>
+                    <div>Look At: <span id="camera-lookat">[0, 0, 0]</span></div>
+                </div>
+            </div>
+
+            <!-- Movable Dot Controls -->
+            <div id="movable-dot-controls" class="hidden" class="absolute bottom-4 right-4 z-30 bg-white p-4 rounded-lg shadow-lg max-w-xs">
+                <div class="mb-3 font-semibold text-gray-800">Movable Dot</div>
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-600 w-4">X:</label>
+                        <input type="number" id="dot-x" value="0" step="0.1" class="w-16 px-2 py-1 text-xs border rounded">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-600 w-4">Y:</label>
+                        <input type="number" id="dot-y" value="0" step="0.1" class="w-16 px-2 py-1 text-xs border rounded">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-600 w-4">Z:</label>
+                        <input type="number" id="dot-z" value="0" step="0.1" class="w-16 px-2 py-1 text-xs border rounded">
+                    </div>
+                    <div class="text-xs text-gray-600 mt-2">
+                        Position: <span id="dot-position-display">[0, 0, 0]</span>
+                    </div>
+                </div>
+            </div>
+
+                        <!-- Help Modal -->
+            <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 opacity-0 pointer-events-none z-50">
+                <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full transform scale-95 transition-transform">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Controls Guide</h3>
+                    
+                    <div class="flex border border-gray-200 rounded-lg p-1 mb-4">
+                        <button id="mouse-guide-btn" class="flex-1 px-4 py-2 text-sm font-medium rounded-md bg-blue-500 text-white">Mouse</button>
+                        <button id="touch-guide-btn" class="flex-1 px-4 py-2 text-sm font-medium rounded-md text-gray-600">Touch</button>
+                    </div>
+
+                    <ul id="mouse-instructions" class="list-disc list-inside text-gray-600 space-y-2 text-left">
+                        <li><b>Rotate Camera:</b> Hold the left mouse button and move to rotate.</li>
+                        <li><b>Pan:</b> Hold the right mouse button and move to pan.</li>
+                        <li><b>Zoom:</b> Use the mouse wheel to zoom in and out.</li>
+                        <li><b>Annotations:</b> Click the red circles to view information.</li>
+                        <li><b>Change Stages:</b> Use the timeline or menu to change the stage.</li>
+                    </ul>
+
+                    <ul id="touch-instructions" class="list-disc list-inside text-gray-600 space-y-2 text-left hidden">
+                        <li><b>Rotate Camera:</b> Use one finger to drag and rotate.</li>
+                        <li><b>Pan:</b> Use two fingers to drag and pan.</li>
+                        <li><b>Zoom:</b> Pinch with two fingers to zoom in and out.</li>
+                        <li><b>Annotations:</b> Tap the red circles to view information.</li>
+                        <li><b>Change Stages:</b> Use the timeline or menu to change the stage.</li>
+                    </ul>
+
+                    <button id="close-help-modal" class="mt-6 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Got it</button>
+                </div>
+            </div>
+
+            <!-- Annotation Modal -->
+            <div id="annotation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 opacity-0 pointer-events-none z-50">
+                <div id="modal-content" class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full transform scale-95 transition-transform">
+                                    <h3 id="modal-title" class="text-lg font-bold text-gray-800 mb-2">Annotation</h3>
+                    <p id="modal-description" class="text-gray-600"></p>
+                    <button id="close-modal" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Timeline -->
+        <div class="hidden md:flex justify-between p-6 px-4 bg-white rounded-xl shadow-md mt-6" id="timeline-container">
+        </div>
+
+    <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./libs/three.module.js",
+                "@mkkellogg/gaussian-splats-3d": "./libs/gaussian-splats-3d.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+[
+  {
+    "splatUrl": "./splats/stage1.splat",
+    "title": "Stage 1: Foundation",
+    "description": "Laying the foundation and preparing the site.",
+    "annotationsUrl": "./annotations/stage1.json",
+    "rotationLock": true,
+    "panLock": true,
+    "initialCameraPosition": [-3.55, -3.06, -4.60],
+    "initialCameraLookAt": [-0.08, -0.03, -0.00],
+    "minZoom": 3,
+    "maxZoom": 10
+  },
+  {
+    "splatUrl": "./splats/stage2.splat",
+    "title": "Stage 2: Framing",
+    "description": "Building the walls and frame of the building.",
+    "annotationsUrl": "./annotations/stage2.json",
+    "rotationLock": true,
+    "panLock": true,
+    "initialCameraPosition": [-1, -4, 6],
+    "initialCameraLookAt": [0, 4, 0],
+    "minZoom": 2,
+    "maxZoom": 50
+  },
+  {
+    "splatUrl": "./splats/stage3.splat",
+    "title": "Stage 3: Finishing",
+    "description": "Finishing works, exterior and interior decoration.",
+    "annotationsUrl": "./annotations/stage3.json",
+    "rotationLock": false,
+    "panLock": false,
+    "initialCameraPosition": [-3.55, -3.06, -4.60],
+    "initialCameraLookAt": [-0.08, -0.03, -0.00],
+    "minZoom": 5,
+    "maxZoom": 30
+  }
+]

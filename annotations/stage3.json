@@ -1,0 +1,6 @@
+[
+  { "pos": [0, 6, 0], "title": "Roof", "desc": "Roof installation is complete." },
+  { "pos": [3, 2, -3], "title": "Windows", "desc": "Window frames have been installed." },
+  { "pos": [-3, 2, -3], "title": "Facade", "desc": "Work on the facade has begun." },
+  { "pos": [0, 0, 4], "title": "Entrance", "desc": "The entrance area has been set up." }
+]
